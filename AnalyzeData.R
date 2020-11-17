@@ -76,23 +76,37 @@ analyzeData <- function(dataFrame) {
   
   # print mean and standard deviation for each column
   cat("Mean and standard deviation of numeric columns: \n")
-  for(numericColumnName in numericColumnNames) {
-    numericValues <- na.omit(dataFrame[[numericColumnName]])
-    cat("   ", numericColumnName, 
-        ": \n          Mean              : ", mean(numericValues), 
-        "\n          Standard Deviation: ", sd(numericValues), "\n")
+  if (length(numericColumnNames) > 0) {
+    for(numericColumnName in numericColumnNames) {
+      numericValues <- na.omit(dataFrame[[numericColumnName]])
+      cat("   ", numericColumnName, 
+          ": \n          Mean              : ", mean(numericValues), 
+          "\n          Standard Deviation: ", sd(numericValues), "\n")
+    }
   }
-  
   
   #print the percentages of logical columns
-  logicalPercentages <- dataFrame %>% 
-    group_by( bool_col1 ) %>% 
-    summarise( percent = 100 * n() / nrow( dataFrame ), .groups = 'drop')
   cat("Logical columns percentages:\n")
-  for (i in 1:length(logicalPercentages)) {
-    logicalPercentage <- logicalPercentages[i,]
-    cat("     ", logicalPercentage[[1]], ": ", logicalPercentage[[2]], "\n")
+  logical_columns <- dplyr::select_if(dataFrame, is.logical)
+  
+  for (dataFrameColumnName in names(logical_columns)) {
+    dataFrameColumn <- logical_columns[dataFrameColumnName]
+    cat("     ", dataFrameColumnName, ": ")
+    factorForDF <- factor(dataFrameColumn)
+    tableWithCount <- table(dataFrameColumn)
+      
+    totalElementCountInRow <- sum(tableWithCount)
+    j <- 1
+    for (element in tableWithCount) {
+        if (j != 1) {
+          cat(", ")
+        }
+        cat(names(tableWithCount)[j], "(",  element/totalElementCountInRow, ")")
+        j <- j + 1
+    }
+    cat("\n")
   }
+  
   
   # print categorical stuff
   cat("Categorical column levels: \n")
@@ -102,7 +116,7 @@ analyzeData <- function(dataFrame) {
       factorForDF <- factor(dataFrameColumn)
       tableName <- names(dataFrame[i])
       tableWithCount <- table(dataFrameColumn)
-      cat("     ", names(dataFrame[i]), "[", nlevels(factorForDF) ,"] - ")
+      cat("     ", tableName, "[", nlevels(factorForDF) ,"] - ")
       
       orderedTableWithCount <- tableWithCount[order(tableWithCount, decreasing = TRUE)]
       
@@ -122,25 +136,28 @@ analyzeData <- function(dataFrame) {
     }
   }
   
+  numericColNumber <- length(numericColumnNames)
   # print correlations between rows
-  cat("Correlation of ")
-  for (columnName1 in numericColumnNames) {
-    for (columnName2 in numericColumnNames) {
-      if (columnName1 != columnName2) {
-        cat(columnName1, " and ", columnName2, ": ", cor(dataFrame[columnName1], dataFrame[columnName1]))
-      }
-      
-    }
-    cat("\n")
+  if (numericColNumber > 0) {
+    for (i in 1:(numericColNumber - 1)) {
+     for (j in (i+1):numericColNumber) {
+       cat("Correlation of ", numericColumnNames[i], " and ", numericColumnNames[j], ": ", 
+           cor(dataFrame[numericColumnNames[i]], dataFrame[numericColumnNames[j]]))
+     }
+     cat("\n")
+   }
+  } else {
+    cat("No numerical data exists to calculate correlation.")
   }
   
 }
 
-# dataFrame <- readData()
+dataFrame <- readData()
 example_data <- data.frame(site = c("A", "B", NA, "A", "B", "B"),
                              season = c("Winter", "Summer", "Summer", "Spring",
                                         "Fall", "Spring"),
                              numeric_col1 = c(90, 40, 21.1, 10, 30, 1),
                              numeric_col2 = c(1, 40, 20, 300, 2100, 1000),
-                             bool_col1 = c(NA, TRUE, FALSE, NA, FALSE, FALSE))
+                             bool_col1 = c(NA, TRUE, FALSE, NA, FALSE, FALSE),
+                           bool_col2 = c(NA, FALSE, FALSE, TRUE, FALSE, FALSE))
 analyzeData(example_data)
