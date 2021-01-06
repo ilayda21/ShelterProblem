@@ -1,13 +1,5 @@
 
-readData <- function() {
-  data <- read.csv("C:/Users/user/Desktop/dataminingproject/ShelterProblem/data/train.csv")
-  print("Data is read from CSV.")
-  dataFrame <- data.frame(data)
-  
-  print("Data frame is created")
-  return(dataFrame)
-}
-
+# helper function: This function prints the given list
 printLists <- function(labelName, listToPrint) {
   formattedString <- ""
   for (listItem in listToPrint) {
@@ -20,6 +12,8 @@ printLists <- function(labelName, listToPrint) {
   cat(labelName, formattedString, "\n")
 }
 
+
+# main function: This function prints the statistics of the data
 analyzeData <- function(dataFrame) {
   dimensions <- dim(dataFrame)
   
@@ -94,15 +88,15 @@ analyzeData <- function(dataFrame) {
     cat("     ", dataFrameColumnName, ": ")
     factorForDF <- factor(dataFrameColumn)
     tableWithCount <- table(dataFrameColumn)
-      
+    
     totalElementCountInRow <- sum(tableWithCount)
     j <- 1
     for (element in tableWithCount) {
-        if (j != 1) {
-          cat(", ")
-        }
-        cat(names(tableWithCount)[j], "(",  element/totalElementCountInRow, ")")
-        j <- j + 1
+      if (j != 1) {
+        cat(", ")
+      }
+      cat(names(tableWithCount)[j], "(",  element/totalElementCountInRow, ")")
+      j <- j + 1
     }
     cat("\n")
   }
@@ -140,24 +134,25 @@ analyzeData <- function(dataFrame) {
   # print correlations between rows
   if (numericColNumber > 0) {
     for (i in 1:(numericColNumber - 1)) {
-     for (j in (i+1):numericColNumber) {
-       cat("Correlation of ", numericColumnNames[i], " and ", numericColumnNames[j], ": ", 
-           cor(dataFrame[numericColumnNames[i]], dataFrame[numericColumnNames[j]]))
-     }
-     cat("\n")
-   }
+      for (j in (i+1):numericColNumber) {
+        cat("Correlation of ", numericColumnNames[i], " and ", numericColumnNames[j], ": ", 
+            cor(dataFrame[numericColumnNames[i]], dataFrame[numericColumnNames[j]]))
+      }
+      cat("\n")
+    }
   } else {
     cat("No numerical data exists to calculate correlation.")
   }
   
 }
 
-dataFrame <- readData()
-example_data <- data.frame(site = c("A", "B", NA, "A", "B", "B"),
-                             season = c("Winter", "Summer", "Summer", "Spring",
-                                        "Fall", "Spring"),
-                             numeric_col1 = c(90, 40, 21.1, 10, 30, 1),
-                             numeric_col2 = c(1, 40, 20, 300, 2100, 1000),
-                             bool_col1 = c(NA, TRUE, FALSE, NA, FALSE, FALSE),
-                           bool_col2 = c(NA, FALSE, FALSE, TRUE, FALSE, FALSE))
-analyzeData(example_data)
+############################# EXAMPLE USAGE ##########################################
+# example_data <- data.frame(site = c("A", "B", NA, "A", "B", "B"),                  #
+#                              season = c("Winter", "Summer", "Summer", "Spring",    #
+#                                         "Fall", "Spring"),                         #
+#                              numeric_col1 = c(90, 40, 21.1, 10, 30, 1),            #
+#                              numeric_col2 = c(1, 40, 20, 300, 2100, 1000),         #
+#                              bool_col1 = c(NA, TRUE, FALSE, NA, FALSE, FALSE),     #
+#                            bool_col2 = c(NA, FALSE, FALSE, TRUE, FALSE, FALSE))    #
+# analyzeData(example_data)                                                          #
+######################################################################################
